@@ -1,0 +1,19 @@
+// --------------------------------- //
+// Project: FlappyBird
+// Start: Thursday, May 14, 2015
+// IDE Version: 12.312
+
+
+// FREE-VERSION:
+// Benötigt Premium für Feature:
+// 3D Grafik
+// Netzwerk Befehle
+//INLINE C/C++ Code
+
+TYPE TMapCollision
+		x
+		y
+		width
+		height
+		colType
+ENDTYPE

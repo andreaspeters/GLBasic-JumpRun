@@ -1,0 +1,50 @@
+// --------------------------------- //
+// Project: FlappyBird
+// Start: Tuesday, May 12, 2015
+// IDE Version: 12.312
+
+TYPE tplayer
+	x; y
+	vX; vY
+	livePoints
+	playerSize = 32
+	playerSet$ = "32x32ninja_m.png"
+	fhPlayerSet
+
+	FUNCTION init: x, y
+		self.x = x
+		self.y = y
+
+		self.vX = 0
+		self.vY = 0
+
+		self.fhPlayerSet = GENSPRITE()
+		LOADANIM self.playerSet$, self.fhPlayerSet, self.playerSize, self.playerSize
+	ENDFUNCTION
+
+	FUNCTION update:
+		// Schwerkraft
+		//INC self.vY, 0.5
+
+		// Bewegung
+		IF KEY(203) THEN DEC self.vX, 1 //nach links bewegen
+		IF KEY(205) THEN INC self.vX, 1 //nach rechts bewegen
+
+		// Traegheit
+		self.vX = self.vX * 0.85
+
+		INC self.x, self.vX
+		INC self.y, self.vY
+
+	ENDFUNCTION
+
+	FUNCTION render:
+		DRAWANIM self.fhPlayerSet, 1, self.x, self.y
+	ENDFUNCTION
+
+ENDTYPE
+
+
+
+
+

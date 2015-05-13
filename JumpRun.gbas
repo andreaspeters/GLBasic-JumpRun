@@ -1,0 +1,38 @@
+// --------------------------------- //
+// Project: Jump 'n Run
+// Start: Tuesday, May 12, 2015
+// IDE Version: 12.312
+
+
+SETCURRENTDIR("Media")
+SETSCREEN 1024,768,0
+SETTRANSPARENCY RGB(0,0,0)
+
+GLOBAL player AS tplayer
+GLOBAL map AS TMap
+
+GOSUB init
+
+WHILE TRUE
+	GOSUB update
+	GOSUB render
+	SHOWSCREEN
+WEND
+
+
+SUB init:
+	player.init(100,100)
+	map.init("map0.txt")
+ENDSUB
+
+SUB update:
+	player.update()
+	map.update()
+ENDSUB
+
+SUB render:
+	player.render()
+	map.render()
+ENDSUB
+
+

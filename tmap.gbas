@@ -1,0 +1,123 @@
+// --------------------------------- //
+// Project: FlappyBird
+// Start: Tuesday, May 12, 2015
+// IDE Version: 12.312
+
+
+TYPE TMap
+	datas[]
+	width; height
+	tileSet$
+	tileSize
+	tileWidth
+	tileHeight
+	fhTileSet
+	fhMap
+	collision[]	AS TMapCollision
+
+	FUNCTION init: mapName$
+		self.fhTileSet = GENSPRITE()
+		self.fhMap = GENFILE()
+
+		// Map Datei oeffnen und einlesen
+		LOCAL line$
+		IF OPENFILE(self.fhMap, mapName$, 1) = FALSE THEN END
+
+		// Einlesen der Map
+		LOCAL x, y
+		y = 0
+		WHILE ENDOFFILE(self.fhMap)	<> 1
+			READLINE self.fhMap, line$
+
+			SELECT line$
+				// Einlesen des Header Bereiches
+				CASE "[header]"
+					self.width = INTEGER(getValue$())
+					self.height = INTEGER(getValue$())
+					self.tileWidth = INTEGER(getValue$())
+					self.tileHeight = INTEGER(getValue$())
+				// Einlesen der Tileset Bild Informationen
+				CASE "[tilesets]"
+					LOCAL tmp$[]
+					SPLITSTR(getValue$(), tmp$[], ",")
+					self.tileSet$ = tmp$[0]
+					self.tileSize = tmp$[1]
+				// Einlesen der Map an sich
+				CASE "[layer]"
+					LOCAL res$
+					LOCAL tiles$[]
+					DIM self.datas[self.width+1][self.height+1]
+					res$ = getValue$()	// das ist der layer typ. dieser wird im moment nicht benoetigt
+					res$ = getValue$()	// dies ist der leer bereich fuer des data attribute "data="
+					// hier kommt die map
+					FOR y=0 TO self.height - 1 STEP 1
+						SPLITSTR(getValue$(), tiles$[], ",")
+						FOR x=0 TO self.width - 1 STEP 1
+							self.datas[x][y] = INTEGER(tiles$[x])
+						NEXT
+					NEXT
+				// Einlesen der Kollisionsobjekte
+				CASE "type=1"
+					setCollValue(getValue$(), 1)
+				DEFAULT
+
+			ENDSELECT
+		WEND
+
+		// Laden des TileSet
+		LOADANIM self.tileSet$, self.fhTileSet, self.tileSize, self.tileSize
+	ENDFUNCTION
+
+	FUNCTION update:
+	ENDFUNCTION
+
+	// Funktion: render
+	// Rendert die grafischen Elemente der Map
+	FUNCTION render:
+		FOR x = 0 TO self.width - 1
+			FOR y = 0 TO self.height - 1
+				SELECT self.datas[x][y]
+					CASE 0
+					DEFAULT
+						DRAWANIM self.fhTileSet, self.datas[x][y]-1, x*self.tileSize, y*self.tileSize
+				ENDSELECT
+			NEXT
+		NEXT
+	ENDFUNCTION
+
+	// Funktion: getValue$
+	// Gibt zu einem Attribute aus der Map Datei im Format "Attr=Val" das Value wieder
+	FUNCTION getValue$:
+		LOCAL res$[]
+		LOCAL line$
+		READLINE self.fhMap, line$
+		SPLITSTR(line$, res$[], "=")
+		DEBUG line$ + "\n"
+
+		// Wenn kein Value vorhanden ist, kann dieser auch nicht ausgegeben werden
+		IF LEN(res$[]) > 1
+			RETURN res$[1]
+		ELSE
+			RETURN line$
+		ENDIF
+	ENDFUNCTION
+
+	// Funktion: setCollValue
+	// Parameter: location als array mit 4 elementen
+	// Diese Funktion speicher in einem Array alle Kollisionsobjekte
+	FUNCTION setCollValue: location$, objType
+		LOCAL laenge = LEN(self.collision[])
+		LOCAL loc$[]
+		INC laenge
+		REDIM self.collision[laenge+1]
+
+		SPLITSTR(location$, loc$[], ",")
+		self.collision[laenge].x = loc$[0]
+		self.collision[laenge].y = loc$[1]
+		self.collision[laenge].width = loc$[2]
+		self.collision[laenge].height = loc$[3]
+	ENDFUNCTION
+
+ENDTYPE
+
+
