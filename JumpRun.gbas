@@ -21,18 +21,18 @@ WEND
 
 
 SUB init:
-	player.init(100,100)
+	player.init(100,0)
 	map.init("map0.txt")
 ENDSUB
 
 SUB update:
-	player.update()
 	map.update()
+	player.update()	
 ENDSUB
 
 SUB render:
-	player.render()
 	map.render()
+	player.render()
 ENDSUB
 
 

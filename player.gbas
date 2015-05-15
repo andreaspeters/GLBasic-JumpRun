@@ -22,25 +22,53 @@ TYPE tplayer
 		LOADANIM self.playerSet$, self.fhPlayerSet, self.playerSize, self.playerSize
 	ENDFUNCTION
 
-	FUNCTION update:
-		// Schwerkraft
-		//INC self.vY, 0.5
-
+	FUNCTION update:	
 		// Bewegung
 		IF KEY(203) THEN DEC self.vX, 1 //nach links bewegen
 		IF KEY(205) THEN INC self.vX, 1 //nach rechts bewegen
-
+		IF KEY(57)
+			self.vY = - 8 //huepfen
+		ENDIF		
+		
 		// Traegheit
 		self.vX = self.vX * 0.85
-
+				
+		// Player Bewegen und auf Kollision Pruefen
 		INC self.x, self.vX
-		INC self.y, self.vY
+		// Pruefen auf Kollision mit der Map
+		IF map.checkCollision(getPositionX(), getPositionY(), 1)
+			DEC self.x, self.vX
+		ENDIF
 
+		INC self.y, self.vY			
+		// Pruefen auf Kollision mit der Map
+		IF map.checkCollision(getPositionX(), getPositionY(), 1)								
+			DEC self.y, self.vY		
+			DEC self.vY, 1.5			
+		ELSE
+			// Schwerkraft
+			INC self.vY, 1.5	
+		ENDIF
 	ENDFUNCTION
 
 	FUNCTION render:
 		DRAWANIM self.fhPlayerSet, 1, self.x, self.y
 	ENDFUNCTION
+
+	// Funktion: getPositionX
+	// Gibt die Position X auf der Map aus
+	// Return: X Position
+	FUNCTION getPositionX:
+		RETURN INTEGER(self.x / map.getTileSize() + 0.5)
+	ENDFUNCTION
+
+	// Funktion: getPositionY
+	// Gibt die Position Y auf der Map aus
+	// Return: Y Position
+	FUNCTION getPositionY:
+		RETURN INTEGER(self.y / map.getTileSize() + 1)
+	ENDFUNCTION
+
 
 ENDTYPE
 

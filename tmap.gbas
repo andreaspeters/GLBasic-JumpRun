@@ -1,5 +1,5 @@
 // --------------------------------- //
-// Project: FlappyBird
+// Project: My first Jumpn run
 // Start: Tuesday, May 12, 2015
 // IDE Version: 12.312
 
@@ -109,15 +109,45 @@ TYPE TMap
 		LOCAL laenge = LEN(self.collision[])
 		LOCAL loc$[]
 		INC laenge
-		REDIM self.collision[laenge+1]
+
+		REDIM self.collision[laenge]
 
 		SPLITSTR(location$, loc$[], ",")
-		self.collision[laenge].x = loc$[0]
-		self.collision[laenge].y = loc$[1]
-		self.collision[laenge].width = loc$[2]
-		self.collision[laenge].height = loc$[3]
+
+		self.collision[laenge-1].x = INTEGER(loc$[0])
+		self.collision[laenge-1].y = INTEGER(loc$[1])
+		self.collision[laenge-1].width = INTEGER(loc$[2]) + 1
+		self.collision[laenge-1].height = INTEGER(loc$[3]) + 2
+		self.collision[laenge-1].colType = objType
+
+		IF self.collision[laenge-1].height = 0 THEN INC self.collision[laenge-1].height
+		IF self.collision[laenge-1].width  = 0 THEN INC self.collision[laenge-1].width
 	ENDFUNCTION
 
+	// Funktion: checkCollision
+	// Prueft auf Kollision
+	// X, Y Position des Objektes welches geprueft werden soll
+	// objType ist der Type des Map Objektes
+	//		1 = Ein Hinderniss oder Untergrund
+	//		2 = Ein durchdringbares Hindernis welches aber auch ein Untergrund hat
+	// Return: true
+	FUNCTION checkCollision: x, y, objType
+		LOCAL count = LEN(self.collision)
+		LOCAL i
+		FOR i=0 TO count-1
+			IF x >= self.collision[i].x AND x < self.collision[i].width+self.collision[i].x
+				IF y >= self.collision[i].y AND y < self.collision[i].height+self.collision[i].y
+					IF 	self.collision[i].colType = objType
+						RETURN TRUE
+					ENDIF
+				ENDIF
+			ENDIF
+		NEXT
+	ENDFUNCTION
+
+	FUNCTION getTileSize:
+		RETURN self.tileSize
+	ENDFUNCTION
 ENDTYPE
 
 
