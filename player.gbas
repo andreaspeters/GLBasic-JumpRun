@@ -24,8 +24,8 @@ TYPE tplayer
 
 	FUNCTION update:	
 		// Bewegung
-		IF KEY(203) THEN DEC self.vX, 1 //nach links bewegen
-		IF KEY(205) THEN INC self.vX, 1 //nach rechts bewegen
+		IF KEY(203) THEN DEC self.vX, 0.7 //nach links bewegen
+		IF KEY(205) THEN INC self.vX, 0.7 //nach rechts bewegen
 		IF KEY(57)
 			self.vY = - 8 //huepfen
 		ENDIF		
@@ -49,6 +49,23 @@ TYPE tplayer
 			// Schwerkraft
 			INC self.vY, 1.5	
 		ENDIF
+		
+		// Scrollen der Map (aber nur in X Richtung)
+		LOCAL sx, sy
+		GETSCREENSIZE sx, sy
+		
+		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite
+		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) 
+			map.setScrollX(-0.2)
+			DEC self.x, (self.vX / 0.85)
+		ENDIF
+		
+		// Links Bewegung nach Rechts Scrollen, in der linken hälfte der Seite
+		//IF getPositionX() <= (sx / map.getTileSize() / 3) AND KEY(203)
+		//	map.setScrollX(0.5)
+		//	DEC self.x, (self.vX / 0.85)
+		//ENDIF
+		
 	ENDFUNCTION
 
 	FUNCTION render:

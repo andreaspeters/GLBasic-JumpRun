@@ -23,6 +23,7 @@ WEND
 SUB init:
 	player.init(100,0)
 	map.init("map0.txt")
+	LOADBMP "sky1.png"	
 ENDSUB
 
 SUB update:

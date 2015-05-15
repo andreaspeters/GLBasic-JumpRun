@@ -14,10 +14,17 @@ TYPE TMap
 	fhTileSet
 	fhMap
 	collision[]	AS TMapCollision
+	scrollX
+	scrollY
 
 	FUNCTION init: mapName$
 		self.fhTileSet = GENSPRITE()
 		self.fhMap = GENFILE()
+		
+		// Das Scrollen initialisieren
+		self.scrollX = 0
+		self.scrollY = 0
+		
 
 		// Map Datei oeffnen und einlesen
 		LOCAL line$
@@ -79,7 +86,7 @@ TYPE TMap
 				SELECT self.datas[x][y]
 					CASE 0
 					DEFAULT
-						DRAWANIM self.fhTileSet, self.datas[x][y]-1, x*self.tileSize, y*self.tileSize
+						DRAWANIM self.fhTileSet, self.datas[x][y]-1, (x+self.scrollX)*self.tileSize, (y+self.scrollY)*self.tileSize
 				ENDSELECT
 			NEXT
 		NEXT
@@ -133,10 +140,10 @@ TYPE TMap
 	// Return: true
 	FUNCTION checkCollision: x, y, objType
 		LOCAL count = LEN(self.collision)
-		LOCAL i
+		LOCAL i	
 		FOR i=0 TO count-1
-			IF x >= self.collision[i].x AND x < self.collision[i].width+self.collision[i].x
-				IF y >= self.collision[i].y AND y < self.collision[i].height+self.collision[i].y
+			IF x >= self.collision[i].x+self.scrollX AND x < self.collision[i].width+self.collision[i].x+self.scrollX
+				IF y >= self.collision[i].y+self.scrollY AND y < self.collision[i].height+self.collision[i].y+self.scrollY
 					IF 	self.collision[i].colType = objType
 						RETURN TRUE
 					ENDIF
@@ -145,9 +152,25 @@ TYPE TMap
 		NEXT
 	ENDFUNCTION
 
+	// Funktion: getTileSize
+	// Gibt die Groesse des eingelesenen Tiles aus
+	// Return: TileSize als Integer
 	FUNCTION getTileSize:
 		RETURN self.tileSize
 	ENDFUNCTION
+	
+	// Funktion: setScrollX
+	// Setzt die Position der Map
+	FUNCTION setScrollX: x
+		self.scrollX = self.scrollX + x
+	ENDFUNCTION
+	
+	// Funktion: setScrollY
+	// Setzt die Position der Map
+	FUNCTION setScrollY: y
+		self.scrollY = self.scrollY + y
+	ENDFUNCTION
+	
 ENDTYPE
 
 
