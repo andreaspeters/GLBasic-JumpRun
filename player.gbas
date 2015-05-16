@@ -15,6 +15,7 @@ TYPE tplayer
 	collision = FALSE // liegt eine kollision vor?
 	gravity = FALSE // Gravity erlauben?
 	scroll = FALSE // es wird gescrollt
+	anim = 0
 
 	FUNCTION init: x, y
 		self.x = x
@@ -36,6 +37,13 @@ TYPE tplayer
 		// Bewegung
 		IF KEY(203) AND self.scroll = FALSE THEN DEC self.vx, self.speed+1 //nach links bewegen
 		IF KEY(205) AND self.scroll = FALSE THEN INC self.vx, self.speed+1 //nach rechts bewegen
+		
+		// Animationsbewegung des Players nach Rechts oder links
+		IF (KEY(205) OR KEY(203)) AND self.anim < 4 
+			INC self.anim, 0.5
+		ELSE 
+			self.anim = 0
+		ENDIF 
 		
 		// Traegheit
 		self.vx = self.vx * 0.75		
@@ -73,9 +81,10 @@ TYPE tplayer
 			self.jump = TRUE
 			self.x = oldX
 		ENDIF
-
+		
 		// Schwerkraft wenn keine Kollision vorherscht
 		IF collision = FALSE
+			self.anim = 6
 			INC self.vy, 0.5
 		ENDIF
 							
@@ -103,7 +112,8 @@ TYPE tplayer
 	ENDFUNCTION
 
 	FUNCTION render:
-		DRAWANIM self.fhPlayerSet, 1, self.x, self.y + self.playerSize
+		SETSPRITEANIM self.fhPlayerSet, 73, 99
+		ROTOZOOMANIM self.fhPlayerSet, self.anim, self.x, self.y + self.playerSize - 15, 0, 1.05
 	ENDFUNCTION
 
 	// Funktion: getPositionX
