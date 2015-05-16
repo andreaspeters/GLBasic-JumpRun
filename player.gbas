@@ -5,10 +5,11 @@
 
 TYPE tplayer
 	x; y
+	vx; vy
 	livePoints
-	playerSize = 32
-	playerSet$ = "32x32ninja_m.png"
-	speed = 3
+	playerSize = 72
+	playerSet$ = "p1_spritesheet.png"
+	speed = 1
 	fhPlayerSet
 	jump = TRUE // Springen erlauben
 	collision = FALSE // liegt eine kollision vor?
@@ -18,6 +19,9 @@ TYPE tplayer
 	FUNCTION init: x, y
 		self.x = x
 		self.y = y
+		
+		self.vx = 0
+		self.vy = 0
 
 		self.fhPlayerSet = GENSPRITE()
 		LOADANIM self.playerSet$, self.fhPlayerSet, self.playerSize, self.playerSize
@@ -30,9 +34,11 @@ TYPE tplayer
 		LOCAL collision = FALSE
 		
 		// Bewegung
-		IF KEY(203) AND self.scroll = FALSE THEN DEC self.x, self.speed //nach links bewegen
-		IF KEY(205) AND self.scroll = FALSE THEN INC self.x, self.speed //nach rechts bewegen
+		IF KEY(203) AND self.scroll = FALSE THEN DEC self.vx, self.speed+1 //nach links bewegen
+		IF KEY(205) AND self.scroll = FALSE THEN INC self.vx, self.speed+1 //nach rechts bewegen
 		
+		// Traegheit
+		self.vx = self.vx * 0.75		
 		
 		// Nach oben klettern wenn player vor einem Kletter Objekt steht
 		IF map.checkCollision(getPositionX(), getPositionY(), 3) AND KEY(200) 		
@@ -44,18 +50,17 @@ TYPE tplayer
 		IF map.checkCollision(getPositionX(), getPositionY(), 3) AND KEY(208) 
 			INC self.y, self.speed 
 			collision = TRUE
-		ENDIF
-		
+		ENDIF		
 		
 		// Nur huepfen, wenn Kontakt zum Boden herscht.
-		IF map.checkCollision(getPositionX(), getPositionY()+1, 1) AND KEY(57) AND self.jump = TRUE		
-			DEC self.y, 50 //huepfen		
+		IF KEY(57) AND self.jump = TRUE	
+			self.vy = -13
 			self.jump = FALSE
 			collision = FALSE
 		ENDIF
-
 		
 		// Pruefen auf Y Kollision
+		INC self.y, self.vy
 		IF map.checkCollision(getPositionX(), getPositionY()+1, 1)
 			self.y = oldY
 			collision = TRUE
@@ -63,18 +68,15 @@ TYPE tplayer
 		ENDIF 
 				
 		// Pruefen auf X Kollision nach rechts und nach links
+		INC self.x, self.vx
 		IF map.checkCollision(getPositionX()+1, getPositionY(), 1)
+			self.jump = TRUE
 			self.x = oldX
-			collision = TRUE
 		ENDIF
 
 		// Schwerkraft wenn keine Kollision vorherscht
 		IF collision = FALSE
-			IF self.jump = FALSE 
-				INC self.y, self.speed * 1.1
-			ELSE
-				INC self.y, self.speed * 1.5
-			ENDIF 
+			INC self.vy, 0.5
 		ENDIF
 							
 
@@ -84,7 +86,7 @@ TYPE tplayer
 
 		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite
 		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) AND NOT map.checkCollision(getPositionX()+1, getPositionY(), 1)
-			map.setScrollX(-0.2)
+			map.setScrollX(-0.1)
 			self.scroll = TRUE
 		ELSEIF KEY(205) AND NOT map.checkCollision(getPositionX()+1, getPositionY(), 1)
 			self.scroll = FALSE
@@ -92,7 +94,7 @@ TYPE tplayer
 
 		// Links Bewegung nach Rechts Scrollen, in der linken hälfte der Seite
 		IF getPositionX() <= (sx / map.getTileSize() / 2) AND KEY(203) AND NOT map.checkCollision(getPositionX()-1, getPositionY(), 1)
-			map.setScrollX(0.2)
+			map.setScrollX(0.1)
 			self.scroll = TRUE
 		ELSEIF KEY(203) AND NOT map.checkCollision(getPositionX()-1, getPositionY(), 1)
 			self.scroll = FALSE			

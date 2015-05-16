@@ -86,7 +86,8 @@ TYPE TMap
 				SELECT self.datas[x][y]
 					CASE 0
 					DEFAULT
-						DRAWANIM self.fhTileSet, self.datas[x][y]-1, (x+self.scrollX)*self.tileSize, (y+self.scrollY)*self.tileSize
+						SETSPRITEANIM self.fhTileSet, self.tileSize, self.tileSize
+						ROTOZOOMANIM self.fhTileSet, self.datas[x][y]-1, (x+self.scrollX)*self.tileSize, (y+self.scrollY)*self.tileSize, 0, 1.05
 				ENDSELECT
 			NEXT
 		NEXT
