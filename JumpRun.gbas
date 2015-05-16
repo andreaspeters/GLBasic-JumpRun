@@ -21,14 +21,14 @@ WEND
 
 
 SUB init:
-	player.init(100,0)
+	player.init(70,300)
 	map.init("map0.txt")
-	LOADBMP "sky1.png"	
+	LOADBMP "sky1.png"
 ENDSUB
 
 SUB update:
 	map.update()
-	player.update()	
+	player.update()
 ENDSUB
 
 SUB render:

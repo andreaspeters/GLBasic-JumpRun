@@ -1,75 +1,107 @@
 // --------------------------------- //
-// Project: FlappyBird
+// Project: Jump 'n Run
 // Start: Tuesday, May 12, 2015
 // IDE Version: 12.312
 
 TYPE tplayer
 	x; y
-	vX; vY
 	livePoints
 	playerSize = 32
 	playerSet$ = "32x32ninja_m.png"
+	speed = 3
 	fhPlayerSet
+	jump = TRUE // Springen erlauben
+	collision = FALSE // liegt eine kollision vor?
+	gravity = FALSE // Gravity erlauben?
+	scroll = FALSE // es wird gescrollt
 
 	FUNCTION init: x, y
 		self.x = x
 		self.y = y
 
-		self.vX = 0
-		self.vY = 0
-
 		self.fhPlayerSet = GENSPRITE()
 		LOADANIM self.playerSet$, self.fhPlayerSet, self.playerSize, self.playerSize
 	ENDFUNCTION
 
-	FUNCTION update:	
-		// Bewegung
-		IF KEY(203) THEN DEC self.vX, 0.7 //nach links bewegen
-		IF KEY(205) THEN INC self.vX, 0.7 //nach rechts bewegen
-		IF KEY(57)
-			self.vY = - 8 //huepfen
-		ENDIF		
+	FUNCTION update:
+		LOCAL oldX = self.x
+		LOCAL oldY = self.y
 		
-		// Traegheit
-		self.vX = self.vX * 0.85
-				
-		// Player Bewegen und auf Kollision Pruefen
-		INC self.x, self.vX
-		// Pruefen auf Kollision mit der Map
-		IF map.checkCollision(getPositionX(), getPositionY(), 1)
-			DEC self.x, self.vX
+		LOCAL collision = FALSE
+		
+		// Bewegung
+		IF KEY(203) AND self.scroll = FALSE THEN DEC self.x, self.speed //nach links bewegen
+		IF KEY(205) AND self.scroll = FALSE THEN INC self.x, self.speed //nach rechts bewegen
+		
+		
+		// Nach oben klettern wenn player vor einem Kletter Objekt steht
+		IF map.checkCollision(getPositionX(), getPositionY(), 3) AND KEY(200) 		
+			DEC self.y, self.speed 
+			collision = TRUE
+		ENDIF
+		
+		// Nach unten klettern wenn player vor einem Kletter Objekt steht
+		IF map.checkCollision(getPositionX(), getPositionY(), 3) AND KEY(208) 
+			INC self.y, self.speed 
+			collision = TRUE
+		ENDIF
+		
+		
+		// Nur huepfen, wenn Kontakt zum Boden herscht.
+		IF map.checkCollision(getPositionX(), getPositionY()+1, 1) AND KEY(57) AND self.jump = TRUE		
+			DEC self.y, 50 //huepfen		
+			self.jump = FALSE
+			collision = FALSE
 		ENDIF
 
-		INC self.y, self.vY			
-		// Pruefen auf Kollision mit der Map
-		IF map.checkCollision(getPositionX(), getPositionY(), 1)								
-			DEC self.y, self.vY		
-			DEC self.vY, 1.5			
-		ELSE
-			// Schwerkraft
-			INC self.vY, 1.5	
-		ENDIF
 		
+		// Pruefen auf Y Kollision
+		IF map.checkCollision(getPositionX(), getPositionY()+1, 1)
+			self.y = oldY
+			collision = TRUE
+			self.jump = TRUE
+		ENDIF 
+				
+		// Pruefen auf X Kollision nach rechts und nach links
+		IF map.checkCollision(getPositionX()+1, getPositionY(), 1)
+			self.x = oldX
+			collision = TRUE
+		ENDIF
+
+		// Schwerkraft wenn keine Kollision vorherscht
+		IF collision = FALSE
+			IF self.jump = FALSE 
+				INC self.y, self.speed * 1.1
+			ELSE
+				INC self.y, self.speed * 1.5
+			ENDIF 
+		ENDIF
+							
+
 		// Scrollen der Map (aber nur in X Richtung)
 		LOCAL sx, sy
 		GETSCREENSIZE sx, sy
-		
+
 		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite
-		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) 
+		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) AND NOT map.checkCollision(getPositionX()+1, getPositionY(), 1)
 			map.setScrollX(-0.2)
-			DEC self.x, (self.vX / 0.85)
+			self.scroll = TRUE
+		ELSEIF KEY(205) AND NOT map.checkCollision(getPositionX()+1, getPositionY(), 1)
+			self.scroll = FALSE
 		ENDIF
-		
+
 		// Links Bewegung nach Rechts Scrollen, in der linken hälfte der Seite
-		//IF getPositionX() <= (sx / map.getTileSize() / 3) AND KEY(203)
-		//	map.setScrollX(0.5)
-		//	DEC self.x, (self.vX / 0.85)
-		//ENDIF
-		
+		IF getPositionX() <= (sx / map.getTileSize() / 2) AND KEY(203) AND NOT map.checkCollision(getPositionX()-1, getPositionY(), 1)
+			map.setScrollX(0.2)
+			self.scroll = TRUE
+		ELSEIF KEY(203) AND NOT map.checkCollision(getPositionX()-1, getPositionY(), 1)
+			self.scroll = FALSE			
+		ENDIF
+
 	ENDFUNCTION
 
 	FUNCTION render:
-		DRAWANIM self.fhPlayerSet, 1, self.x, self.y
+		DRAWANIM self.fhPlayerSet, 1, self.x, self.y + self.playerSize
 	ENDFUNCTION
 
 	// Funktion: getPositionX
