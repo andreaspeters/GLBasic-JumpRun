@@ -48,18 +48,24 @@ TYPE tplayer
 		// Traegheit
 		self.vx = self.vx * 0.75		
 		
-		// Nach oben klettern wenn player vor einem Kletter Objekt steht
-		IF map.checkCollision(getPositionX(), getPositionY(), 3) AND KEY(200) 		
-			DEC self.y, self.speed 
+		// Nach oben oder unten klettern wenn player vor einem Kletter Objekt steht
+		IF map.checkCollision(getPositionX(), getPositionY(), 3) 
+			self.anim = 12
+			// Hochklettern
+			IF KEY(200) 
+				self.vy = 0
+				DEC self.y, self.speed + 2			
+			ENDIF 
+			
+			// Runterklettern
+			IF KEY(208) 
+				self.vy = 0
+				INC self.y, self.speed + 2			
+			ENDIF
+								
 			collision = TRUE
 		ENDIF
-		
-		// Nach unten klettern wenn player vor einem Kletter Objekt steht
-		IF map.checkCollision(getPositionX(), getPositionY(), 3) AND KEY(208) 
-			INC self.y, self.speed 
-			collision = TRUE
-		ENDIF		
-		
+				
 		// Nur huepfen, wenn Kontakt zum Boden herscht.
 		IF KEY(57) AND self.jump = TRUE	
 			self.vy = -13
@@ -83,7 +89,7 @@ TYPE tplayer
 		ENDIF
 		
 		// Schwerkraft wenn keine Kollision vorherscht
-		IF collision = FALSE
+		IF collision = FALSE			
 			self.anim = 6
 			INC self.vy, 0.5
 		ENDIF
@@ -112,7 +118,7 @@ TYPE tplayer
 	ENDFUNCTION
 
 	FUNCTION render:
-		SETSPRITEANIM self.fhPlayerSet, 73, 99
+		SETSPRITEANIM self.fhPlayerSet, 73, 95
 		ROTOZOOMANIM self.fhPlayerSet, self.anim, self.x, self.y + self.playerSize - 15, 0, 1.05
 	ENDFUNCTION
 
