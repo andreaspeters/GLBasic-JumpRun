@@ -1,0 +1,32 @@
+// --------------------------------- //
+// Project: JumpRun
+// Start: Sunday, May 17, 2015
+// IDE Version: 12.312
+
+TYPE THud
+	fhFont
+	scorePosX = 10
+	scorePosY = 10
+	fontSize = 1
+	fontFile$ = "smalfont.png"
+
+	FUNCTION init:	
+		self.fhFont = GENFONT()
+		LOADFONT self.fontFile$, self.fhFont						
+	ENDFUNCTION
+		
+	FUNCTION update:
+	ENDFUNCTION
+	
+	FUNCTION render:
+		printXY("Test", self.scorePosX, self.scorePosY)
+	ENDFUNCTION
+	
+	FUNCTION printXY: text$, x, y
+		SETFONT self.fhFont, self.fontSize
+		PRINT text$, x, y
+	ENDFUNCTION
+
+	
+	
+ENDTYPE
