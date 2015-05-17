@@ -22,6 +22,7 @@ WEND
 
 
 SUB init:
+	// Ersten level starten
 	player.init(70,300)
 	map.init("map0.txt")
 	hud.init()

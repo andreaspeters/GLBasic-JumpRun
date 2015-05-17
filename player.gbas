@@ -16,6 +16,7 @@ TYPE tplayer
 	gravity = FALSE // Gravity erlauben?
 	scroll = FALSE // es wird gescrollt
 	anim = 0
+	score AS TScore // Die Punkte des Spielers
 
 	FUNCTION init: x, y
 		self.x = x
@@ -47,6 +48,13 @@ TYPE tplayer
 		
 		// Traegheit
 		self.vx = self.vx * 0.75		
+		
+		// Ein Coin Kästchen wurde angesprungen
+		LOCAL res = map.checkCollision(getPositionX(), getPositionY(), 2) 
+		IF res
+			INC self.score.score, 1
+			map.collision[res].active = FALSE
+		ENDIF
 		
 		// Nach oben oder unten klettern wenn player vor einem Kletter Objekt steht
 		IF map.checkCollision(getPositionX(), getPositionY(), 3) 

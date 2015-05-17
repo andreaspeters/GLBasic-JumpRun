@@ -12,19 +12,19 @@ TYPE THud
 
 	FUNCTION init:	
 		self.fhFont = GENFONT()
-		LOADFONT self.fontFile$, self.fhFont						
+		LOADFONT self.fontFile$, self.fhFont							
 	ENDFUNCTION
 		
 	FUNCTION update:
 	ENDFUNCTION
 	
 	FUNCTION render:
-		printXY("Test", self.scorePosX, self.scorePosY)
+		printScore(player.score.score)
 	ENDFUNCTION
 	
-	FUNCTION printXY: text$, x, y
+	FUNCTION printScore: score
 		SETFONT self.fhFont, self.fontSize
-		PRINT text$, x, y
+		PRINT score, self.scorePosX, self.scorePosY
 	ENDFUNCTION
 
 	
