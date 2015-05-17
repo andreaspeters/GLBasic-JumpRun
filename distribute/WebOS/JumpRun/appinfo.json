@@ -1,0 +1,10 @@
+{
+	"id": "com.aventer.jumprun",
+	"version": "0.001.0",
+	"vendor": "avEnter",
+	"type": "pdk",
+	"main": "glbasic-webos-exe",
+	"title": "JumpRun",
+	"icon": "webos-icon.png",
+	"requiredMemory": "25"
+}
