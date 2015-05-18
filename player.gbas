@@ -21,7 +21,7 @@ TYPE tplayer
 	FUNCTION init: x, y
 		self.x = x
 		self.y = y
-		
+
 		self.vx = 0
 		self.vy = 0
 
@@ -32,95 +32,97 @@ TYPE tplayer
 	FUNCTION update:
 		LOCAL oldX = self.x
 		LOCAL oldY = self.y
-		
+
 		LOCAL collision = FALSE
-		
+
 		// Bewegung
 		IF KEY(203) AND self.scroll = FALSE THEN DEC self.vx, self.speed+1 //nach links bewegen
 		IF KEY(205) AND self.scroll = FALSE THEN INC self.vx, self.speed+1 //nach rechts bewegen
-		
+
 		// Animationsbewegung des Players nach Rechts oder links
-		IF (KEY(205) OR KEY(203)) AND self.anim < 4 
+		IF (KEY(205) OR KEY(203)) AND self.anim < 4
 			INC self.anim, 0.5
-		ELSE 
+		ELSE
 			self.anim = 0
-		ENDIF 
-		
+		ENDIF
+
 		// Traegheit
-		self.vx = self.vx * 0.75		
-		
+		self.vx = self.vx * 0.75
+
 		// Ein Coin Kästchen wurde angesprungen
-		LOCAL res = map.checkCollision(getPositionX(), getPositionY(), 2) 
-		IF res
+		LOCAL res = map.checkCollision(getPositionX(), getPositionY(), 2)
+		IF res <> -1
 			INC self.score.score, 1
 			map.collision[res].active = FALSE
+			self.jump = FALSE
+			collision = FALSE			
 		ENDIF
-		
+
 		// Nach oben oder unten klettern wenn player vor einem Kletter Objekt steht
-		IF map.checkCollision(getPositionX(), getPositionY(), 3) 
+		IF map.checkCollision(getPositionX(), getPositionY(), 3) <> -1
 			self.anim = 12
 			// Hochklettern
-			IF KEY(200) 
+			IF KEY(200)
 				self.vy = 0
-				DEC self.y, self.speed + 2			
-			ENDIF 
-			
-			// Runterklettern
-			IF KEY(208) 
-				self.vy = 0
-				INC self.y, self.speed + 2			
+				DEC self.y, self.speed + 2
 			ENDIF
-								
+
+			// Runterklettern
+			IF KEY(208)
+				self.vy = 0
+				INC self.y, self.speed + 2
+			ENDIF
+
 			collision = TRUE
 		ENDIF
-				
+
 		// Nur huepfen, wenn Kontakt zum Boden herscht.
-		IF KEY(57) AND self.jump = TRUE	
+		IF KEY(57) AND self.jump = TRUE
 			self.vy = -13
 			self.jump = FALSE
 			collision = FALSE
 		ENDIF
-		
+
 		// Pruefen auf Y Kollision
 		INC self.y, self.vy
-		IF map.checkCollision(getPositionX(), getPositionY()+1, 1)
+		IF map.checkCollision(getPositionX(), getPositionY()+1, 1) <> -1
 			self.y = oldY
 			collision = TRUE
 			self.jump = TRUE
-		ENDIF 
-				
+		ENDIF
+
 		// Pruefen auf X Kollision nach rechts und nach links
 		INC self.x, self.vx
-		IF map.checkCollision(getPositionX()+1, getPositionY(), 1)
+		IF map.checkCollision(getPositionX()+1, getPositionY(), 1) <> -1
 			self.jump = TRUE
 			self.x = oldX
 		ENDIF
-		
+
 		// Schwerkraft wenn keine Kollision vorherscht
-		IF collision = FALSE			
+		IF collision = FALSE
 			self.anim = 6
 			INC self.vy, 0.5
 		ENDIF
-							
+
 
 		// Scrollen der Map (aber nur in X Richtung)
 		LOCAL sx, sy
 		GETSCREENSIZE sx, sy
 
 		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite
-		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) AND NOT map.checkCollision(getPositionX()+1, getPositionY(), 1)
+		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) AND map.checkCollision(getPositionX()+1, getPositionY(), 1) = -1
 			map.setScrollX(-0.1)
 			self.scroll = TRUE
-		ELSEIF KEY(205) AND NOT map.checkCollision(getPositionX()+1, getPositionY(), 1)
+		ELSEIF KEY(205) AND map.checkCollision(getPositionX()+1, getPositionY(), 1) = -1
 			self.scroll = FALSE
 		ENDIF
 
 		// Links Bewegung nach Rechts Scrollen, in der linken hälfte der Seite
-		IF getPositionX() <= (sx / map.getTileSize() / 2) AND KEY(203) AND NOT map.checkCollision(getPositionX()-1, getPositionY(), 1)
+		IF getPositionX() <= (sx / map.getTileSize() / 2) AND KEY(203) AND map.checkCollision(getPositionX()-1, getPositionY(), 1) = -1
 			map.setScrollX(0.1)
 			self.scroll = TRUE
-		ELSEIF KEY(203) AND NOT map.checkCollision(getPositionX()-1, getPositionY(), 1)
-			self.scroll = FALSE			
+		ELSEIF KEY(203) AND map.checkCollision(getPositionX()-1, getPositionY(), 1) = -1
+			self.scroll = FALSE
 		ENDIF
 
 	ENDFUNCTION

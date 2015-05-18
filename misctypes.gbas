@@ -1,0 +1,18 @@
+// --------------------------------- //
+// Project: Jump 'n Run
+// Start: Thursday, May 14, 2015
+// IDE Version: 12.312
+
+
+TYPE TMapCollision
+	x
+	y
+	width
+	height
+	colType
+	active // Gibt an ob das Objekt noch existiert oder inaktiv ist
+ENDTYPE
+
+TYPE TScore
+	score = 0
+ENDTYPE

@@ -10,23 +10,23 @@ TYPE THud
 	fontSize = 1
 	fontFile$ = "smalfont.png"
 
-	FUNCTION init:	
+	FUNCTION init:
 		self.fhFont = GENFONT()
-		LOADFONT self.fontFile$, self.fhFont							
+		LOADFONT self.fontFile$, self.fhFont
 	ENDFUNCTION
-		
+
 	FUNCTION update:
 	ENDFUNCTION
-	
+
 	FUNCTION render:
 		printScore(player.score.score)
 	ENDFUNCTION
-	
+
 	FUNCTION printScore: score
 		SETFONT self.fhFont, self.fontSize
 		PRINT score, self.scorePosX, self.scorePosY
 	ENDFUNCTION
 
-	
-	
+
+
 ENDTYPE

@@ -123,8 +123,8 @@ TYPE TMap
 
 		self.collision[laenge-1].x = INTEGER(loc$[0])
 		self.collision[laenge-1].y = INTEGER(loc$[1])
-		self.collision[laenge-1].width = INTEGER(loc$[2]) 
-		self.collision[laenge-1].height = INTEGER(loc$[3]) 
+		self.collision[laenge-1].width = INTEGER(loc$[2])
+		self.collision[laenge-1].height = INTEGER(loc$[3])
 		self.collision[laenge-1].colType = objType
 		self.collision[laenge-1].active = TRUE
 
@@ -141,15 +141,15 @@ TYPE TMap
 		LOCAL count = LEN(self.collision)
 		LOCAL i
 		FOR i=0 TO count-1
-			IF x >= self.collision[i].x+self.scrollX AND x <= self.collision[i].width+self.collision[i].x+self.scrollX				
-				IF y >= self.collision[i].y+self.scrollY AND y <= self.collision[i].height+self.collision[i].y+self.scrollY					
-					IF 	self.collision[i].colType = objType AND self.collision[i].active 
-						RETURN i 
+			IF x >= self.collision[i].x+self.scrollX AND x <= self.collision[i].width+self.collision[i].x+self.scrollX
+				IF y >= self.collision[i].y+self.scrollY AND y <= self.collision[i].height+self.collision[i].y+self.scrollY
+					IF 	self.collision[i].colType = objType AND self.collision[i].active
+						RETURN i
 					ENDIF
 				ENDIF
 			ENDIF
 		NEXT
-		RETURN FALSE
+		RETURN -1
 	ENDFUNCTION
 
 	// Funktion: getTileSize
