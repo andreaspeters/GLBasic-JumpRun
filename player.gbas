@@ -15,8 +15,9 @@ TYPE tplayer
 	collision = FALSE // liegt eine kollision vor?
 	gravity = FALSE // Gravity erlauben?
 	scroll = FALSE // es wird gescrollt
-	anim = 0
-	score AS TScore // Die Punkte des Spielers
+	anim = 0 // Das Sprite der Player Figur
+	score AS TScore // Die Punkte des Spielers	
+	move = 1
 
 	FUNCTION init: x, y
 		self.x = x
@@ -32,12 +33,19 @@ TYPE tplayer
 	FUNCTION update:
 		LOCAL oldX = self.x
 		LOCAL oldY = self.y
-
+		
 		LOCAL collision = FALSE
-
+		
 		// Bewegung
-		IF KEY(203) AND self.scroll = FALSE THEN DEC self.vx, self.speed+1 //nach links bewegen
-		IF KEY(205) AND self.scroll = FALSE THEN INC self.vx, self.speed+1 //nach rechts bewegen
+		IF KEY(203) AND self.scroll = FALSE
+			DEC self.vx, self.speed+1 //nach links bewegen
+			self.move = 1.5
+		ENDIF
+			
+		IF KEY(205) AND self.scroll = FALSE
+			INC self.vx, self.speed+1 //nach rechts bewegen
+			self.move = 0.8
+		ENDIF
 
 		// Animationsbewegung des Players nach Rechts oder links
 		IF (KEY(205) OR KEY(203)) AND self.anim < 4
@@ -55,7 +63,7 @@ TYPE tplayer
 			INC self.score.score, 1
 			map.collision[res].active = FALSE
 			self.jump = FALSE
-			collision = FALSE			
+			collision = FALSE
 		ENDIF
 
 		// Nach oben oder unten klettern wenn player vor einem Kletter Objekt steht
@@ -75,6 +83,11 @@ TYPE tplayer
 
 			collision = TRUE
 		ENDIF
+		
+		// Sprung Brett
+		IF map.checkCollision(getPositionX(), getPositionY(), 4) <> -1
+			self.anim = 12
+		ENDIF		
 
 		// Nur huepfen, wenn Kontakt zum Boden herscht.
 		IF KEY(57) AND self.jump = TRUE
@@ -85,15 +98,16 @@ TYPE tplayer
 
 		// Pruefen auf Y Kollision
 		INC self.y, self.vy
-		IF map.checkCollision(getPositionX(), getPositionY()+1, 1) <> -1
+		IF map.checkCollision(getPositionX(), getPositionY(), 1) <> -1
 			self.y = oldY
 			collision = TRUE
 			self.jump = TRUE
 		ENDIF
 
 		// Pruefen auf X Kollision nach rechts und nach links
-		INC self.x, self.vx
-		IF map.checkCollision(getPositionX()+1, getPositionY(), 1) <> -1
+		INC self.x, self.vx		
+		IF map.checkCollision(getPositionX(), getPositionY(), 1) <> -1
+			collision = TRUE
 			self.jump = TRUE
 			self.x = oldX
 		ENDIF
@@ -107,43 +121,44 @@ TYPE tplayer
 
 		// Scrollen der Map (aber nur in X Richtung)
 		LOCAL sx, sy
-		GETSCREENSIZE sx, sy
+		GETSCREENSIZE sx, sy	
 
-		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite
-		IF getPositionX() >= (sx / map.getTileSize() / 2) AND KEY(205) AND map.checkCollision(getPositionX()+1, getPositionY(), 1) = -1
+		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite aber nur wenn die 
+		// taste nach rechts gedrueckt wird und keine X Collision besteht.
+		IF getPositionX() >= (sx / map.tileSize - map.scrollX - (sx / map.tileSize/2)) AND KEY(205) AND map.checkCollision(getPositionX(), getPositionY(), 1) =  -1
 			map.setScrollX(-0.1)
 			self.scroll = TRUE
-		ELSEIF KEY(205) AND map.checkCollision(getPositionX()+1, getPositionY(), 1) = -1
+		ELSE
 			self.scroll = FALSE
 		ENDIF
 
 		// Links Bewegung nach Rechts Scrollen, in der linken hälfte der Seite
-		IF getPositionX() <= (sx / map.getTileSize() / 2) AND KEY(203) AND map.checkCollision(getPositionX()-1, getPositionY(), 1) = -1
-			map.setScrollX(0.1)
-			self.scroll = TRUE
-		ELSEIF KEY(203) AND map.checkCollision(getPositionX()-1, getPositionY(), 1) = -1
-			self.scroll = FALSE
-		ENDIF
+//		IF getPositionX() <= (sx / map.tileSize / 2) AND KEY(203)
+//			map.setScrollX(0.1)
+//			self.scroll = TRUE
+//		ELSE
+//			self.scroll = FALSE			
+//		ENDIF
 
 	ENDFUNCTION
 
 	FUNCTION render:
 		SETSPRITEANIM self.fhPlayerSet, 73, 95
-		ROTOZOOMANIM self.fhPlayerSet, self.anim, self.x, self.y + self.playerSize - 15, 0, 1.05
+		ROTOZOOMANIM self.fhPlayerSet, self.anim, self.x - map.scrollX, self.y - 15, 0, 1.05
 	ENDFUNCTION
 
 	// Funktion: getPositionX
 	// Gibt die Position X auf der Map aus
 	// Return: X Position
 	FUNCTION getPositionX:
-		RETURN INTEGER(self.x / map.getTileSize() + 0.5)
+		RETURN INTEGER(self.x / map.tileSize + 1 - map.scrollX)
 	ENDFUNCTION
 
 	// Funktion: getPositionY
 	// Gibt die Position Y auf der Map aus
 	// Return: Y Position
 	FUNCTION getPositionY:
-		RETURN INTEGER(self.y / map.getTileSize() + 1)
+		RETURN INTEGER(self.y / map.tileSize + 1 - map.scrollY)
 	ENDFUNCTION
 
 

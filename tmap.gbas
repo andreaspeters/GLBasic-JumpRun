@@ -5,7 +5,7 @@
 
 
 TYPE TMap
-	datas[]
+	datas[] AS TMapData
 	width; height
 	tileSet$
 	tileSize
@@ -60,7 +60,7 @@ TYPE TMap
 					FOR y=0 TO self.height - 1 STEP 1
 						SPLITSTR(getValue$(), tiles$[], ",")
 						FOR x=0 TO self.width - 1 STEP 1
-							self.datas[x][y] = INTEGER(tiles$[x])
+							self.datas[x][y].tile = INTEGER(tiles$[x])
 						NEXT
 					NEXT
 				// Einlesen der Kollisionsobjekte
@@ -83,11 +83,11 @@ TYPE TMap
 	FUNCTION render:
 		FOR x = 0 TO self.width - 1
 			FOR y = 0 TO self.height - 1
-				SELECT self.datas[x][y]
+				SELECT self.datas[x][y].tile
 					CASE 0
 					DEFAULT
 						SETSPRITEANIM self.fhTileSet, self.tileSize, self.tileSize
-						ROTOZOOMANIM self.fhTileSet, self.datas[x][y]-1, (x+self.scrollX)*self.tileSize, (y+self.scrollY)*self.tileSize, 0, 1.05
+						ROTOZOOMANIM self.fhTileSet, self.datas[x][y].tile -1, (x+self.scrollX)*self.tileSize, (y+self.scrollY)*self.tileSize, 0, 1.05
 				ENDSELECT
 			NEXT
 		NEXT
@@ -127,7 +127,12 @@ TYPE TMap
 		self.collision[laenge-1].height = INTEGER(loc$[3])
 		self.collision[laenge-1].colType = objType
 		self.collision[laenge-1].active = TRUE
-
+		
+		// Sprite Elemente zum Tile einlesen		
+		LOCAL sprite$ = getValue$();
+		IF LEN(sprite$) > 0
+			SPLITSTR(sprite$, self.collision[laenge-1].sprite$[], ",")
+		ENDIF				
 	ENDFUNCTION
 
 	// Funktion: checkCollision
@@ -141,22 +146,15 @@ TYPE TMap
 		LOCAL count = LEN(self.collision)
 		LOCAL i
 		FOR i=0 TO count-1
-			IF x >= self.collision[i].x+self.scrollX AND x <= self.collision[i].width+self.collision[i].x+self.scrollX
-				IF y >= self.collision[i].y+self.scrollY AND y <= self.collision[i].height+self.collision[i].y+self.scrollY
-					IF 	self.collision[i].colType = objType AND self.collision[i].active
+			IF x >= self.collision[i].x AND x <= self.collision[i].width+self.collision[i].x
+				IF y >= self.collision[i].y AND y <= self.collision[i].height+self.collision[i].y
+					IF self.collision[i].colType = objType AND self.collision[i].active
 						RETURN i
 					ENDIF
 				ENDIF
 			ENDIF
 		NEXT
-		RETURN -1
-	ENDFUNCTION
-
-	// Funktion: getTileSize
-	// Gibt die Groesse des eingelesenen Tiles aus
-	// Return: TileSize als Integer
-	FUNCTION getTileSize:
-		RETURN self.tileSize
+	RETURN -1
 	ENDFUNCTION
 
 	// Funktion: setScrollX

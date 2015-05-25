@@ -11,6 +11,11 @@ TYPE TMapCollision
 	height
 	colType
 	active // Gibt an ob das Objekt noch existiert oder inaktiv ist
+	sprite$[]
+ENDTYPE
+
+TYPE TMapData
+	tile
 ENDTYPE
 
 TYPE TScore
