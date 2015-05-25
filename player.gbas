@@ -14,7 +14,6 @@ TYPE tplayer
 	jump = TRUE // Springen erlauben
 	collision = FALSE // liegt eine kollision vor?
 	gravity = FALSE // Gravity erlauben?
-	scroll = FALSE // es wird gescrollt
 	anim = 0 // Das Sprite der Player Figur
 	score AS TScore // Die Punkte des Spielers	
 	move = 1
@@ -37,12 +36,12 @@ TYPE tplayer
 		LOCAL collision = FALSE
 		
 		// Bewegung
-		IF KEY(203) AND self.scroll = FALSE
+		IF KEY(203) AND map.scroll = FALSE
 			DEC self.vx, self.speed+1 //nach links bewegen
 			self.move = 1.5
 		ENDIF
 			
-		IF KEY(205) AND self.scroll = FALSE
+		IF KEY(205) AND map.scroll = FALSE
 			INC self.vx, self.speed+1 //nach rechts bewegen
 			self.move = 0.8
 		ENDIF
@@ -85,8 +84,10 @@ TYPE tplayer
 		ENDIF
 		
 		// Sprung Brett
-		IF map.checkCollision(getPositionX(), getPositionY(), 4) <> -1
+		res = map.checkCollision(getPositionX(), getPositionY(), 4)
+		IF res <> -1 AND self.jump = FALSE
 			self.anim = 12
+			DEBUG res
 		ENDIF		
 
 		// Nur huepfen, wenn Kontakt zum Boden herscht.
@@ -117,29 +118,6 @@ TYPE tplayer
 			self.anim = 6
 			INC self.vy, 0.5
 		ENDIF
-
-
-		// Scrollen der Map (aber nur in X Richtung)
-		LOCAL sx, sy
-		GETSCREENSIZE sx, sy	
-
-		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite aber nur wenn die 
-		// taste nach rechts gedrueckt wird und keine X Collision besteht.
-		IF getPositionX() >= (sx / map.tileSize - map.scrollX - (sx / map.tileSize/2)) AND KEY(205) AND map.checkCollision(getPositionX(), getPositionY(), 1) =  -1
-			map.setScrollX(-0.1)
-			self.scroll = TRUE
-		ELSE
-			self.scroll = FALSE
-		ENDIF
-
-		// Links Bewegung nach Rechts Scrollen, in der linken hälfte der Seite
-//		IF getPositionX() <= (sx / map.tileSize / 2) AND KEY(203)
-//			map.setScrollX(0.1)
-//			self.scroll = TRUE
-//		ELSE
-//			self.scroll = FALSE			
-//		ENDIF
-
 	ENDFUNCTION
 
 	FUNCTION render:

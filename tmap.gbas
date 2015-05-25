@@ -16,6 +16,7 @@ TYPE TMap
 	collision[]	AS TMapCollision
 	scrollX
 	scrollY
+	scroll = FALSE // es wird gescrollt	
 
 	FUNCTION init: mapName$
 		self.fhTileSet = GENSPRITE()
@@ -76,6 +77,18 @@ TYPE TMap
 	ENDFUNCTION
 
 	FUNCTION update:
+		// Scrollen der Map (aber nur in X Richtung)
+		LOCAL sx, sy
+		GETSCREENSIZE sx, sy	
+
+		// Rechts Bewegung nach Links Scrollen, in der Mitte der Seite aber nur wenn die 
+		// taste nach rechts gedrueckt wird und keine X Collision besteht.
+		IF player.getPositionX() >= (sx / self.tileSize - self.scrollX - (sx / self.tileSize/2)) AND KEY(205) AND self.checkCollision(player.getPositionX(), player.getPositionY(), 1) =  -1
+			self.setScrollX(-0.1)
+			self.scroll = TRUE
+		ELSE
+			self.scroll = FALSE
+		ENDIF	
 	ENDFUNCTION
 
 	// Funktion: render
